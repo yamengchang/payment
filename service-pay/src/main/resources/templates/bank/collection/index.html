@@ -1,0 +1,368 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>代收对账</title>
+
+	<style>
+		.formArea {
+			border-bottom: 1px solid #d0d0d0;
+			overflow: hidden;
+			padding: 20px 0 20px 20px;
+			background: white;
+		}
+
+		.searchCondition {
+			float: left;
+		}
+
+		.searchButtonGroup {
+			float: right;
+			width: 150px;
+		}
+
+		select,
+		input {
+			border: solid 1px #b4b4b4;
+			background: white;
+			padding-right: 14px;
+			color: #b4b4b4;
+			width: 180px;
+			height: 30px;
+			margin-right: 10px;
+			outline: none;
+		}
+
+		input[type=date]::-webkit-inner-spin-button {
+			visibility: hidden;
+		}
+
+		input[type=date]::-webkit-clear-button {
+			visibility: hidden;
+		}
+
+		input[type=button] {
+			padding-right: 0px;
+		}
+
+
+	</style>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+	<link rel="stylesheet" href="https://unpkg.com/vue-easytable/umd/css/index.css">
+	<link rel="stylesheet" type="text/css" href="../css/public.css"/>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/layer/2.3/layer.js"></script>
+	<script src="js/laydate.js"></script>
+	<link rel="stylesheet" href="http://layui.hcwl520.com.cn/layui/css/layui.css?v=201809030202">
+</head>
+
+<body>
+<div id="collection">
+	<div id="modal-overlay">
+		<div class="modal-data">
+			<div class="modal-title">手工对账
+				<div class="cancel" @click="overlay()">X</div>
+			</div>
+			<div class="modal-form">
+				<div>
+					<div class="lable">对账日期：</div>
+					<div class="value">{{date}}</div>
+				</div>
+				<div>
+					<div class="lable">密码：</div>
+					<div class="value"><input type="password" name="" v-model="password" value=""/></div>
+				</div>
+			</div>
+			<div class="modal-opeationsButton">
+				<input type="button" name="" @click="confirm" value="保存" class="buttonSearch"/>
+				<input type="button" name="" value="返回" @click="overlay()" class="buttonSearch"/>
+
+			</div>
+		</div>
+	</div>
+	<div class="wrap">
+		<div class="wrapTitle" style="margin-bottom: 30px">
+			<h3>兴业银行代收对账列表详情 </h3>
+		</div>
+
+		<div class="wrapTitle">
+			代收对账
+		</div>
+		<div class="formArea">
+			<div class="searchCondition">
+				<select name="status" v-model="reconciliationsStatus">
+					<option value="ERROR">对账状态</option>
+					<option value="WAIT_CLEAR">未对账</option>
+					<option value="HAVE_CLEAR">已对账</option>
+				</select>
+				<input type="text" readonly name="startTime" v-model="startDate" id="startTime"
+					   onclick="laydate({elem: '#startTime',istime: true, format: 'YYYY-MM-DD',max:vm.currentDate(1),festival: true,choose: function(dates) { vm.startDate=dates;}})"
+					   value=""/>
+				<input type="text" readonly name="endTime" v-model="endDate" id="endTime"
+					   onclick="laydate({elem: '#endTime' ,istime: true, format: 'YYYY-MM-DD',max:vm.currentDate(1),festival: true,choose: function(dates) { vm.endDate=dates;}})"
+					   value=""/>
+			</div>
+			<div class="searchButtonGroup">
+				<button @click="pullData" class="layui-btn layui-btn-normal">手动拉去数据</button>
+			</div>
+			<div class="searchButtonGroup">
+				<button type="button" class="buttonSearch" @click="reset">重置</button>
+				<button type="button" @click="init" class="buttonSearch">搜索</button>
+			</div>
+		</div>
+		<div class="container-fluid">
+			<div id="right_div">
+				<div id="right_div1">
+					<div id="right_divx">
+						<table id="right_table1" class="table table-bordered">
+							<tr>
+								<th>操作</th>
+								<th>对账日期</th>
+								<th>平台交易总笔数</th>
+								<th>平台交易总金额</th>
+								<th>平台交易总服务费</th>
+								<th>对账状态</th>
+								<th>对账单总笔数</th>
+								<th>对账单总金额</th>
+								<th>对账单总服务费</th>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div id="right_div2">
+					<table id="right_table2" class="table table-bordered" v-for="(item) in leaseSerialRecord">
+
+						<tr>
+							<td><a @click="overlay(item.date)" href="javascript:void(0);"
+								   style="color: blue;">手工对账&nbsp;</a>|<a
+									:href="'details/'+item.date" target="_blank" style="color: blue;"> 详情 </a>|<a
+									:href="'all/'+item.date" target="_blank" style="color: blue;"> 查看 </a></td>
+							<td>{{item.date}}</td>
+							<td>{{item.platSumTradeNum}}笔</td>
+							<td>{{item.platSumTradeAccount/100}}元</td>
+							<td>{{item.platSumServiceCharge==null?0:item.platSumServiceCharge/100}}元</td>
+							<td> {{formats(item)}}
+							</td>
+							<td>{{item.bankSumTradeNum}}笔</td>
+							<td>{{item.bankSumTradeAccount/100}}元</td>
+							<td>{{item.bankSumServiceCharge/100}}元</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div style="float:right ">
+			<v-pagination @page-change="pageChange" @page-size-change="pageSizeChange" :total="totalRows"
+						  :page-size="pageSize"
+						  :layout="['total', 'prev', 'pager', 'next', 'sizer', 'jumper']"></v-pagination>
+		</div>
+	</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+<script src="https://unpkg.com/vue-easytable/umd/js/index.js"></script>
+<script type="text/javascript">
+    //固定和滚动
+    var right_div2 = document.getElementById("right_div2");
+    right_div2.onscroll = function () {
+        var right_div2_top = this.scrollTop;
+        var right_div2_left = this.scrollLeft;
+        document.getElementById("left_div2").scrollTop = right_div2_top;
+        document.getElementById("right_div1").scrollLeft = right_div2_left;
+    }
+    //设置右边div宽度
+    document.getElementById("right_div").style.width = "" + document.documentElement.clientWidth - 130 + "px";
+    setInterval(function () {
+        document.getElementById("right_div").style.width = "" + document.documentElement.clientWidth - 130 + "px";
+    }, 0);
+
+    let token = '${token}';
+    let vm = new Vue({
+            el: "#collection",
+            data: {
+                reconciliationsStatus: "ERROR",
+                startDate: "",
+                endDate: "",
+                pageIndex: 1,
+                pageSize: 20,
+                totalRows: 0,
+                leaseSerialRecord: [],
+                date: '',
+                password: ''
+            },
+            created() {
+                this.startDate = this.currentDate(30);
+                this.endDate = this.currentDate(1);
+                this.init()
+            },
+
+            methods: {
+                init() {
+                    sessionStorage.setItem("ACCESS_TOKEN", token);
+                    this.leaseSerialRecord = [];
+                    let _this = this;
+                    console.log("sd");
+                    this.$http.get('collect/index', {
+                        params: {
+                            'pageNo': _this.pageIndex,
+                            'pageSize': _this.pageSize,
+                            'date_gte': _this.startDate,
+                            'date_lte': _this.endDate,
+                            'date_desc': _this.endDate,
+                            'cleanStatus': _this.reconciliationsStatus
+                        }
+                    }).then(result => {
+                        console.log("er");
+                        _this.leaseSerialRecord = result.body.content;
+                        _this.totalRows = result.body.totalRows
+                    })
+                }, formatStatus(status) {
+                    if ('WAIT_CLEAR' === status) {
+                        return "待对账"
+                    } else if ("HAVE_CLEAR") {
+                        return "已对账";
+                    } else if ("PAY_CLEAN") {
+                        return "清分到帐";
+                    } else if ("HUNG_UP") {
+                        return "已挂起";
+                    } else if ("ERROR") {
+                        return "错误";
+                    }
+                },
+                formats(item) {
+                    let platSumTradeNum = item.platSumTradeNum == null ? 0 : item.platSumTradeNum;
+                    let platSumTradeAccount = item.platSumTradeAccount == null ? 0 : item.platSumTradeAccount;
+                    let platSumServiceCharge = item.platSumServiceCharge == null ? 0 : item.platSumServiceCharge;
+
+                    let bankSumTradeNum = item.bankSumTradeNum == null ? 0 : item.bankSumTradeNum;
+                    let bankSumTradeAccount = item.bankSumTradeAccount == null ? 0 : item.bankSumTradeAccount;
+                    let bankSumServiceCharge = item.bankSumServiceCharge == null ? 0 : item.bankSumServiceCharge;
+
+                    if (item.cleanStatus === 'PAY_CLEAN') {
+                        return '已对账';
+                    } else if (platSumTradeNum === bankSumTradeNum && platSumTradeAccount === bankSumTradeAccount && platSumServiceCharge === bankSumServiceCharge) {
+                        return '对账平';
+                    }
+                    return '未对账';
+
+                },
+                pullData() {
+                    layer.open({
+                        type: 1,
+                        title: '按日期拉取数据',
+                        area: ['600px', '180px'],
+                        shadeClose: true, //点击遮罩关闭
+                        content:
+                        '<div style="margin-top: 30px; margin-left: 40px;"><div class="layui-inline" >\n' +
+                        '<button  class="layui-btn layui-btn-normal">选择日期</button>\n' +
+                        '</div>\n' +
+                        '<div class="layui-inline">\n' +
+                        '<div class="layui-input-inline">\n' +
+                        '<input class="layui-input" readonly  id="pulldate" placeholder="yyyy-MM-dd" type="text"\n' +
+                        ' onclick="laydate({elem: \'#pulldate\',max:vm.currentDate(1) ,istime: true, format: \'YYYY-MM-DD\'})">\n' +
+                        '</div>\n' +
+                        '<button class="layui-btn layui-btn-normal" style="margin-left: -2px;"  onclick="vm.sendPullData()"  type="button">\n' +
+                        ' <i class="layui-icon-download-circle layui-icon"></i>\n' +
+                        ' </button>\n' +
+                        ' </div></div> '
+                    });
+                },
+                sendPullData() {
+                    let value = $("#pulldate").val();
+                    if (value === null || value === "") {
+                        value = currentDate(1);
+                    }
+                    this.$http.get('pull/' + value).then(result => {
+                        layer.msg(result.bodyText);
+                        console.log();
+                        this.init();
+                    })
+                },
+                confirm() {
+                    let _this = this;
+                    if (_this.password === null) {
+                        layer.msg("密码不能为空");
+                        return;
+                    }
+                    if (sessionStorage.getItem("ACCESS_TOKEN") === null) {
+                        layer.msg("无效的登录");
+                        return;
+                    }
+                    this.$http.post('../pay/confirm', {}, {
+                            params: {
+                                'password': _this.password,
+                                'token': sessionStorage.getItem("ACCESS_TOKEN")
+                            }
+                        }
+                    ).then(result => {
+                        if (result.body.code != 200) {
+                            layer.msg(result.body.res);
+                            return;
+                        } else if (result.body.code == 200) {
+                            if (result.body) {
+                                layer.msg("正在清分，请稍后...");
+                                let _this = this;
+                                this.$http.post('collect/clear', {}, {
+                                    params: {
+                                        'date': _this.date,
+                                        'sec': result.body.res
+                                    }
+                                }).then(result => {
+                                    layer.msg(result.bodyText);
+                                    _this.overlay();
+                                })
+                            }
+                        }
+                    })
+                },
+                overlay(date) {
+                    this.date = date;
+                    var e1 = document.getElementById('modal-overlay');
+                    e1.style.visibility = (e1.style.visibility == "visible") ? "hidden" : "visible";
+                }
+                ,
+                reset() {
+                    this.reconciliationsStatus = "ERROR";
+                    this.startDate = this.currentDate(30);
+                    this.endDate = this.currentDate(1);
+                    this.pageIndex = 1;
+                    this.pageSize = 20;
+                    this.totalRows = 0;
+                    this.leaseSerialRecord = [];
+                    this.init();
+                }
+                ,
+                pageChange(pageIndex) {
+                    this.pageIndex = pageIndex;
+                    this.init();
+                }
+                ,
+                pageSizeChange(pageSize) {
+                    this.pageIndex = 1;
+                    this.pageSize = pageSize;
+                    this.init();
+                }
+                ,
+                currentDate(num) {
+                    let date = new Date();
+                    let day = num * 24 * 60 * 60 * 1000;
+                    date.setTime(new Date().getTime() - day);
+                    let seperator1 = "-";
+                    let year = date.getFullYear();
+                    let month = date.getMonth() + 1;
+                    let strDate = date.getDate();
+                    if (month >= 1 && month <= 9) {
+                        month = "0" + month;
+                    }
+                    if (strDate >= 0 && strDate <= 9) {
+                        strDate = "0" + strDate;
+                    }
+                    return year + seperator1 + month + seperator1 + strDate;
+                }
+                ,
+            }
+
+        })
+    ;
+</script>
+</body>

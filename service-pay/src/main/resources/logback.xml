@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration scan="true" scanPeriod="3 seconds">
+    <contextName>cms</contextName>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{32} - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/Users/txy/data/apache/payment/logs/%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>360</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>
+                %d{HH:mm:ss.SSS} [%thread] %-5level %logger{32} - %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+    <jmxConfigurator/>
+    <root level="INFO">
+        <!--<root level="DEBUG">-->
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+    </root>
+    <!-- 	<logger name="com.coscon" level="ALL"/> -->
+    <logger name="com.coscon" level="INFO"/>
+
+
+</configuration>

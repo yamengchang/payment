@@ -1,0 +1,780 @@
+<!doctype html>
+<html xmlns:v-bind="http://www.w3.org/1999/xhtml">
+
+<head>
+	<meta charset="utf-8">
+	<title>代收对账-详情</title>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+	<link rel="stylesheet" type="text/css" href="../../css/mass.css"/>
+	<link rel="stylesheet" href="https://unpkg.com/vue-easytable/umd/css/index.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/layer/2.3/layer.js"></script>
+	<link rel="stylesheet" href="http://layui.hcwl520.com.cn/layui/css/layui.css?v=201809030202">
+
+	<script src="../../vue.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+	<script src="../../index.js"></script>
+	<!--<link rel="stylesheet" type="text/css" href="../css/public.css"/>-->
+	<style>
+		#select {
+			width: auto;
+			padding: 0 2%;
+			margin: 0;
+			height: 33px;
+			margin-left: -134px;
+		}
+
+		option {
+			text-align: center;
+
+		}
+
+		.account1, table th {
+			width: 200px;
+			height: 40px;
+			padding-left: 30px;
+		}
+	</style>
+</head>
+
+<body>
+<div class="wrap" id="details">
+	<div id="modal-overlay">
+		<div class="modal-data">
+			<div class="modal-title">充账
+				<div class="cancel" @click="overlay()">X</div>
+			</div>
+			<div class="modal-form">
+				<div>
+					<div class="lable" style="width: 50%;">平台交易金额额度：</div>
+					<div class="value" style="width: 50%;"><input type="text" v-model="reconciliation"
+																  onkeyup="value=value.replace(/[^-\d\.]/g,'')"
+																  value=""/></div>
+				</div>
+				<div>
+					<div class="lable" style="width: 50%;">平台交易服务费充账额度：</div>
+					<div class="value" style="width: 50%;"><input type="text" v-model="reconciliationServiceCharge"
+																  onkeyup="value=value.replace(/[^-\d\.]/g,'')"
+																  value=""/></div>
+				</div>
+			</div>
+			<div class="modal-opeationsButton">
+				<input type="button" name="" @click="confirm" value="保存" class="buttonSearch"/>
+				<input type="button" name="" @click="overlay()" value="返回" class="buttonSearch"/>
+			</div>
+		</div>
+	</div>
+	<div id="editInfomationsPersonal" class="editInfomations">
+		<div class="modal-data">
+			<div class="modal-title">修改收款账户信息
+				<div class="cancel" @click="editInfomations()">X</div>
+			</div>
+			<div class="modal-form">
+				<div>
+					<div class="lable">个人姓名：</div>
+					<div class="value">{{ accName}}</div>
+				</div>
+				<div>
+					<div class="lable">银行：</div>
+					<select id="select" name="status"
+							v-model="code">
+						<option :value="item.code"
+								v-for="item in bankList">{{item.name}}
+						</option>
+					</select>
+					<!--<div class="value">招商银行 </div>-->
+				</div>
+				<div>
+					<div class="lable">银行卡号：</div>
+					<div class="value"><input type="text" name="" v-model="accNo" value=""/></div>
+				</div>
+			</div>
+			<div class="modal-opeationsButton">
+				<input type="button" name="" value="保存" @click="editInfomationsConfirm()" class="buttonSearch save"/>
+				<input type="button" name="" value="返回" @click="editInfomations()"
+					   class="buttonSearch"/>
+
+			</div>
+		</div>
+	</div>
+	<div id="modal-confirm">
+		<div class="modal-data">
+			<div class="modal-title">手工对账
+				<div class="cancel" @click="confirm_overlay">X</div>
+			</div>
+			<div class="modal-form">
+				<div>
+					<div class="lable">对账日期：</div>
+					<div class="value">{{date}}</div>
+				</div>
+				<div>
+					<div class="lable">密码：</div>
+					<div class="value"><input class="input-password" type="password" name="" v-model="password"
+											  value=""/></div>
+				</div>
+			</div>
+			<div class="modal-opeationsButton">
+				<input type="button" name="" @click="confirm_save" value="保存" class="buttonSearch"/>
+				<input type="button" name="" value="返回" @click="confirm_overlay" class="buttonSearch"/>
+
+			</div>
+		</div>
+	</div>
+
+
+	<section>
+		<div class="wrapTitle" style="margin-bottom: 30px">
+			<h3>兴业银行代收对账列表详情 </h3>
+		</div>
+		<div class="wrapTitle">
+			基本信息
+		</div>
+		<div class="formArea">
+			<div>
+				对帐时间：{{data.date}}
+			</div>
+			<div>
+				创建时间：{{data.localDate}}
+			</div>
+		</div>
+		<div class="wrapTitle">
+			对帐单信息
+		</div>
+		<div class="formArea">
+			<div>
+				总笔数：{{data.bankSumTradeNum}}
+			</div>
+			<div>
+				支付总金额：{{data.bankSumTradeAccount/100}} 元
+			</div>
+			<div>
+				手续费总额：{{ data.bankSumServiceCharge/100}} 元
+			</div>
+			<div>
+				计算总金额：{{data.localDate}}
+			</div>
+			<div>
+				对账状态：{{data.cleanStatus==null?"未知错误":formatStatus(data.cleanStatus)}}
+			</div>
+			<div>
+				对账备注：{{data.remark==null?'暂无':data.remark}}
+			</div>
+		</div>
+		<div class="wrapTitle">
+			租赁平台信息
+		</div>
+		<div class="formArea">
+			<div>
+				总笔数：{{data.platSumTradeNum}}
+			</div>
+			<div>
+				支付总金额：{{data.platSumTradeAccount/100}}
+			</div>
+			<div>
+				手续费总额：{{data.platSumServiceCharge/100}}
+			</div>
+			<div>
+				计算总金额：{{data.platSumTradeAccount/100}}
+			</div>
+			<div>
+				对账状态：{{data.cleanStatus==null?"未知错误":formatStatus(data.cleanStatus)}}
+			</div>
+			<div>
+				对账备注：{{data.remark==null?'暂无':data.remark}}
+			</div>
+
+		</div>
+	</section>
+	<section v-show="show">
+		<div class="wrapTitle">
+			差错账清单
+		</div>
+		<div class="tableContainer">
+			<table border="" cellspacing="" cellpadding="" id="errorList">
+				<tr class="head">
+					<td style="    padding-left: 31px;">交易类型</td>
+					<td></td>
+					<td style="    padding-left: 31px;    width: 200px;    height: 40px;"> 挂起</td>
+					<td>订单号</td>
+					<td>订单日期</td>
+					<td>流水类型</td>
+					<td>交易方式</td>
+					<td>支付状态</td>
+					<td>收款人姓名</td>
+					<td>交易金额</td>
+					<td>实际到帐金额</td>
+					<td>服务费</td>
+					<td>对账状态</td>
+					<td>银行订单金额</td>
+					<td>银行到帐金额</td>
+					<td>银行服务费</td>
+					<td>充账金额</td>
+					<td>充账服务费</td>
+				</tr>
+				<template v-for="(item) in details">
+					<tr>
+						<td @click="overlay(item.id)" class="opeation"><span>充账</span></td>
+						<td></td>
+						<td class="account"><input style="margin-left:  24px;" type="checkbox" name="errorAccountCheck"
+												   @click="checkSelect(item.id,item.clean_status)"
+												   :checked="item.clean_status===10"/>
+						</td>
+
+						<td>{{item.order_no}}</td>
+						<td style="width: 200px;">{{formatUnixtimestamp(item.create_time)}}</td>
+						<td>{{formatSeriaType(item.seria_type)}}</td>
+						<td>{{tradeMehtod(item.payment_channel) }}</td>
+						<td>{{formmatStatus(item.status)}}</td>
+						<td>{{item.receive_acct_name}}</td>
+						<td>{{item.amount===null?0:item.amount/100}}元</td>
+						<td>{{item.real_income==null?0 : item.real_income/100}}元</td>
+						<td>{{item.brokerage==null?0:item.brokerage/100}}元</td>
+
+						<td>
+							{{ formats(item)}}
+							<!--{{item.status==="1"?-->
+							<!--(-->
+							<!--(item.amount===null?0:item.amount)===(item.bank_order_money===null?0:item.bank_order_money)-->
+							<!--&&-->
+							<!--(item.real_income==null?0-->
+							<!--:item.real_income)===(item.bank_merchant_real_income===null?0:item.bank_merchant_real_income)&&-->
+							<!--(item.brokerage==null?0:item.brokerage)===-->
+							<!--(item.bank_service_charge===null?0:item.bank_service_charge)-->
+							<!--?-->
+							<!--((item.bank_order_money===null?0:item.bank_order_money)===0||(item.bank_merchant_real_income===null?0:item.bank_merchant_real_income)===0?"对账单未拉取":"平账")-->
+							<!--:((item.bank_order_money===null?0:item.bank_order_money)===0||(item.bank_merchant_real_income===null?0:item.bank_merchant_real_income)===0?"对账单未拉取":"差账")-->
+							<!--):"付款失败"}}-->
+						</td>
+						<td>{{item.bank_order_money===null?0:item.bank_order_money/100}}元</td>
+						<td>{{ item.bank_merchant_real_income===null?0:item.bank_merchant_real_income/100}}元</td>
+						<td>{{ item.bank_service_charge===null?0:item.bank_service_charge/100}}元</td>
+						<td>{{ item.reconciliation===null?0:item.reconciliation/100}}元</td>
+						<td>{{ item.reconciliation_service_charge===null?0:item.reconciliation_service_charge/100}}元
+						</td>
+
+					</tr>
+				</template>
+			</table>
+		</div>
+	</section>
+	<section>
+		<div class="wrapTitle">
+			挂账清单
+		</div>
+		<div class="tableContainer">
+			<table border="" cellspacing="" cellpadding="">
+				<tr class="head">
+					<td style="    padding-left: 31px;"> 交易类型</td>
+					<td></td>
+					<!--<td style="    padding-left: 31px;    width: 200px;    height: 40px;"> 取消挂起</td>-->
+					<td style="    width: 155px;">订单号</td>
+					<td style="    width: 155px;">订单日期</td>
+					<td>流水类型</td>
+					<td>交易方式</td>
+					<td>支付状态</td>
+					<td>收款人姓名</td>
+					<td>交易金额</td>
+					<td>实际到帐金额</td>
+					<td>服务费</td>
+					<td>对账状态</td>
+					<td>银行订单金额</td>
+					<td>银行到帐金额</td>
+					<td>银行服务费</td>
+					<td>充账金额</td>
+					<td>充账服务费</td>
+				</tr>
+				<template v-for="(item) in detailsHung">
+					<tr>
+
+						<td style="    padding-left: 41px;">{{formatSeriaType(item.seria_type)}}</td>
+						<td></td>
+						<!--<td class="account1"><input style="margin-left: 33px; " type="checkbox" name="errorAccountCheck"-->
+						<!--@click="checkSelect(item.id,item.clean_status)"-->
+						<!--:checked="item.clean_status===1"/></td>-->
+						<td>{{item.order_no}}</td>
+						<td style="width: 200px;">{{formatUnixtimestamp(item.create_time)}}</td>
+						<td>{{formatSeriaType(item.seria_type)}}</td>
+						<td>{{tradeMehtod(item.payment_channel) }}</td>
+						<td>{{formmatStatus(item.status)}}</td>
+						<td>{{item.receive_acct_name}}</td>
+						<td>{{item.amount===null?0:item.amount/100}}元</td>
+						<td>{{item.real_income==null?0 : item.real_income/100}}元</td>
+						<td>{{item.brokerage==null?0:item.brokerage/100}}元</td>
+
+						<td>
+							{{ formats(item)}}
+							<!--{{item.status==="1"?-->
+							<!--((item.amount===null?0:item.amount===item.bankOrderMoney===null?0:item.bank_order_money &&-->
+							<!--item.real_income==null?0 :-->
+							<!--item.real_income===item.bank_merchant_real_income===null?0:item.bank_merchant_real_income&&item.brokerage==null?0:item.brokerage===-->
+							<!--item.bank_service_charge===null?0:item.bank_service_charge)? "差账":-->
+							<!--(-->
+							<!--item.bank_merchant_real_income===null&&item.brokerage===null&&item.bank_service_charge===null?"对账单未拉取":"平账")):"*"}}-->
+						</td>
+						<td>{{item.bank_order_money===null?0:item.bank_order_money/100}}元</td>
+						<td>{{ item.bank_merchant_real_income===null?0:item.bank_merchant_real_income/100}}元</td>
+						<td>{{ item.bank_service_charge===null?0:item.bank_service_charge/100}}元</td>
+						<td>{{ item.reconciliation===null?0:item.reconciliation/100}}元</td>
+						<td>{{ item.reconciliation_service_charge===null?0:item.reconciliation_service_charge/100}}元
+						</td>
+					</tr>
+				</template>
+			</table>
+		</div>
+	</section>
+	<section v-show="!show">
+		<div class="wrapTitle" id="failPayList">
+			代付失败清单
+		</div>
+		<div class="tableContainer">
+			<table border="" cellspacing="" cellpadding="" id="gzList">
+				<tr class="head">
+					<td style="    padding-left: 31px;">操作</td>
+					<td></td>
+					<td style="  width: 200px;">订单号</td>
+					<td style="    width: 155px;">订单日期</td>
+					<td>流水类型</td>
+					<td>交易方式</td>
+					<td>支付状态</td>
+					<th>收款人姓名</th>
+					<td>交易金额</td>
+					<td>实际到帐金额</td>
+					<td>服务费</td>
+					<td>对账状态</td>
+					<td>银行订单金额</td>
+					<td>银行到帐金额</td>
+					<th>银行服务费</th>
+					<td>失败信息</td>
+				</tr>
+				<template v-for="(item) in error">
+					<tr>
+						<td style="    color: #0095ff;    text-align: left;"><span @click="pay(item.order_no)">代付</span>
+							| <span
+									@click="editInfomations(item.receive_acct_name,item.receive_acct,item.id)">修改收款</span>
+						</td>
+						<td></td>
+						<td>{{item.order_no}}</td>
+						<td style="width: 200px;">{{formatUnixtimestamp(item.create_time)}}</td>
+						<td>{{formatSeriaType(item.seria_type)}}</td>
+						<td>{{tradeMehtod(item.payment_channel) }}</td>
+						<td>{{formmatStatus(item.status)}}</td>
+						<td>{{item.receive_acct_name}}</td>
+						<td>{{item.amount===null?0:item.amount/100}}元</td>
+						<td>{{item.real_income==null?0 : item.real_income/100}}元</td>
+						<td>{{item.brokerage==null?0:item.brokerage/100}}元</td>
+
+						<td>
+							{{ formats(item)}}
+							<!--{{item.status==="1"?-->
+							<!--((item.amount===null?0:item.amount===item.bankOrderMoney===null?0:item.bank_order_money &&-->
+							<!--item.real_income==null?0 :-->
+							<!--item.real_income===item.bank_merchant_real_income===null?0:item.bank_merchant_real_income&&item.brokerage==null?0:item.brokerage===-->
+							<!--item.bank_service_charge===null?0:item.bank_service_charge)? "差账":-->
+							<!--(-->
+							<!--item.bank_merchant_real_income===null&&item.brokerage===null&&item.bank_service_charge===null?"对账单未拉取":"平账")):"*"}}-->
+						</td>
+						<td>{{item.bank_order_money===null?0:item.bank_order_money/100}}元</td>
+						<td>{{ item.bank_merchant_real_income===null?0:item.bank_merchant_real_income/100}}元</td>
+						<td>{{ item.bank_service_charge===null?0:item.bank_service_charge/100}}元</td>
+						<td>
+							<span v-bind:title="item.error">
+								{{item.error.length>10?item.error.substring(0,10)+"...":item.error}}
+  							</span>
+						</td>
+					</tr>
+				</template>
+			</table>
+		</div>
+	</section>
+
+	<div class="handle" style="    float: right;">
+		<input type="button" @click="confirm_overlay" value="确认对账" class="buttonSearch"/>
+		<input type="button" name="" id="cancel2" value="取消" class="buttonSearch"/>
+	</div>
+</div>
+
+
+</body>
+
+<script>
+
+
+    function editInfomationsPersonal() {
+        var e1 = document.getElementById('editInfomationsPersonal');
+        e1.style.visibility = (e1.style.visibility == "visible") ? "hidden" : "visible";
+    }
+
+    function editInfomationsIndustry() {
+        var e1 = document.getElementById('editInfomationsIndustry');
+        e1.style.visibility = (e1.style.visibility == "visible") ? "hidden" : "visible";
+    }
+
+    let pdate = '${date}';
+
+
+    let vm = new Vue({
+        el: "#details",
+        data: {
+            reconciliationsStatus: "none",
+            startDate: "",
+            endDate: "",
+            pageIndex: 1,
+            pageSize: 10,
+            totalRows: 0,
+            data: {},
+            detailsHung: [],
+            details: [],
+            error: [],
+            reconciliationServiceCharge: '',
+            reconciliation: '',
+            currentId: '',
+            password: '',
+            checked: false,
+            date: pdate,
+            accName: '',
+            accNo: '',
+            code: "308584000013",
+            bankList: [],
+            show: true
+        },
+        created() {
+            this.endDate = this.currentDate(1);
+            this.init()
+        },
+        methods: {
+            init() {
+                this.leaseSerialRecord = [];
+                let _this = this;
+                this.$http.post('index', {}, {
+                    params: {
+                        'date': pdate
+                    }
+                }).then(result => {
+                    _this.data = result.body;
+                    _this.show = result.body.cleanStatus === "WAIT_CLEAR";
+                    _this.data.localDate = _this.getLocalDate(_this.data.createTime);
+                    _this.details = [];
+                    _this.initVal();
+                })
+            },
+            formats(item) {
+                let platSumTradeNum = item.bank_order_money == null ? 0 : item.bank_order_money;
+                let bankSumTradeAccount = item.amount == null ? 0 : item.amount;
+                if (item.status === "1") {
+                    if (item.clean_status === '4' || item.clean_status === '6') {
+                        return '已对账';
+                    }
+                    if (item.clean_status === '7') {
+                        return '对账失败';
+                    } else if (platSumTradeNum === bankSumTradeAccount) {
+                        return '对账平';
+                    }
+                    return '对账不平';
+                } else {
+                    return "支付失败";
+                }
+            },
+            initVal() {
+                let _this = this;
+                this.$http.post('collect', {}, {
+                    params: {
+                        'date': pdate,
+                        'pageNo': _this.pageIndex,
+                        'pageSize': _this.pageSize,
+                        // ERROR
+                        'cleanStatusEnum': "WAIT_CLEAR",
+                    }
+                }).then(result => {
+                    console.log(result);
+                    _this.details = result.body.data.content;
+                    _this.detailsHung = result.body.hung.content;
+                    _this.error = result.body.error.content;
+
+                });
+            },
+            stringToDate: function (dateStr, separator) {
+                if (!separator) {
+                    separator = "-";
+                }
+                let dateArr = dateStr.split(separator);
+                let year = parseInt(dateArr[0]);
+                let month;
+                //处理月份为04这样的情况
+                if (dateArr[1].indexOf("0") == 0) {
+                    month = parseInt(dateArr[1].substring(1));
+                } else {
+                    month = parseInt(dateArr[1]);
+                }
+                let day = parseInt(dateArr[2]);
+                let date = new Date(year, month - 1, day + 1);
+                return this.formatUnixtimestamp(date);
+            },
+            formatStatus(status) {
+                if ('WAIT_CLEAR' === status) {
+                    return "待对账"
+                } else if ("ERROR" === status) {
+                    return "对账错误";
+                } else {
+                    return "已对账";
+                }
+            },
+            formatUnixtimestamp(inputTime) {
+                let date = new Date(inputTime);
+                let y = date.getFullYear();
+                let m = date.getMonth() + 1;
+                m = m < 10 ? ('0' + m) : m;
+                let d = date.getDate();
+                d = d < 10 ? ('0' + d) : d;
+                let h = date.getHours();
+                h = h < 10 ? ('0' + h) : h;
+                let minute = date.getMinutes();
+                let second = date.getSeconds();
+                minute = minute < 10 ? ('0' + minute) : minute;
+                second = second < 10 ? ('0' + second) : second;
+                return y + '-' + m + '-' + d + ' ' + h + ':' + minute + ':' + second;
+            },
+            tradeMehtod(channel) {
+                if (channel === "wechat_app") {
+                    return "微信 APP 支付";
+                } else if (channel === "wechat_csb") {
+                    return "微信扫码支付";
+                } else if (channel === "wechat_wap") {
+                    return "微信公众号支付";
+                } else if (channel === "alipay_csb") {
+                    return "支付宝扫码支付";
+                } else if (channel === "alipay_js") {
+                    return "支付宝 JS 到账";
+                } else if (channel === "alipay_bar") {
+                    return "支付宝条码支付";
+                } else if (channel === "cibepay_entrustpay") {
+                    return "兴业银行银行卡代扣";
+                } else if (channel === "cibepay_pc") {
+                    return "兴业银行网关支付";
+                } else if (channel === "cibepay") {
+                    return "兴业银行快捷支付";
+                }
+                return "其他方式";
+            }, formatSeriaType(ser) {
+                if ("1" === ser) {
+                    return "充值";
+                } else if ("2" === ser) {
+                    return "押金退还";
+                } else if ("3" === ser) {
+                    return "租金";
+                } else if ("4" === ser) {
+                    return "水电煤";
+                }
+                return "未知类型";
+
+            },
+            formmatStatus(ser) {
+                if ("0" === ser) {
+                    return "充值中";
+                } else if ("1" === ser) {
+                    return "交易成功";
+                } else if ("2" === ser) {
+                    return "交易失败";
+                } else if ("4" === ser) {
+                    return "待支付";
+                }
+                return "交易失败";
+
+            },
+            formmatCleanStatus(ser) {
+                if ('WAIT_CLEAR' === status) {
+                    return "待对账"
+                } else if ("HAVE_CLEAR") {
+                    return "已对账";
+                } else if ("PAY_CLEAN") {
+                    return "清分到帐";
+                } else if ("HUNG_UP") {
+                    return "已挂起";
+                } else if ("ERROR") {
+                    return "错误";
+                }
+                return "未知类型";
+
+            },
+            checkSelect(id, value) {
+                if (value === 1) {
+                    value = 10;
+                } else {
+                    value = 1;
+                }
+                let _this = this;
+                this.$http.post('../balance/hung', {}, {
+                    params: {
+                        'id': id,
+                        'value': value
+                    }
+                }).then(result => {
+                    _this.initVal();
+                })
+            },
+            pay(orderNo) {
+                let _this = this;
+                this.$http.post('collect/pay', {}, {
+                    params: {
+                        'orderNo': orderNo
+                    }
+                }).then(result => {
+                    _this.init();
+                })
+            },
+            editInfomationsConfirm(name, account, id) {
+                let _this = this;
+                this.$http.post('collect/update/account', {}, {
+                    params: {
+                        'receiveAcct': this.accNo,
+                        'id': _this.currentId
+                    }
+                }).then(result => {
+                    editInfomationsPersonal()
+                    _this.init();
+                })
+            },
+            editInfomations(name, account, id) {
+                // http://localhost:8765/service-payment/web/index
+                let _this = this;
+                this.$http.get('../../web/index').then(result => {
+                    _this.bankList = result.body;
+                    _this.accName = name;
+                    _this.currentId = id;
+                    let e1 = document.getElementById('editInfomationsPersonal');
+                    e1.style.visibility = (e1.style.visibility == "visible") ? "hidden" : "visible";
+                });
+            },
+            confirm() {
+                let _this = this;
+                this.$http.post('collect/update', {}, {
+                    params: {
+                        'reconciliation': this.reconciliation,
+                        'id': _this.currentId,
+                        'reconciliationServiceCharge': _this.reconciliationServiceCharge,
+                    }
+                }).then(result => {
+                    _this.init();
+                    _this.overlay();
+                })
+            },
+            confirm_save() {
+                let _this = this;
+                if (_this.error != null) {
+                    layer.confirm("含有差错账，你去掉进行清分吗？...", {btn: ['确定', '取消'], title: "提示"}, function () {
+                        _this.pay();
+                    })
+                } else {
+                    _this.pay();
+                }
+            },
+
+            pay() {
+                let _this = this;
+                if (_this.password === null) {
+                    layer.msg("密码不能为空");
+                    return;
+                }
+                if (sessionStorage.getItem("ACCESS_TOKEN") === null) {
+                    layer.msg("无效的登录");
+                    return;
+                }
+                this.$http.post('../../pay/confirm', {}, {
+                        params: {
+                            'password': _this.password,
+                            'token': sessionStorage.getItem("ACCESS_TOKEN")
+                        }
+                    }
+                ).then(result => {
+                    if (result.body.code != 200) {
+                        layer.msg(result.body.res);
+                        return;
+                    } else if (result.body.code == 200) {
+                        if (result.body) {
+                            layer.msg("正在清分，请稍后...");
+                            let _this = this;
+                            this.$http.post('../collect/clear', {}, {
+                                params: {
+                                    'date': _this.date,
+                                    'sec': result.body.res
+                                }
+                            }).then(result => {
+                                layer.msg(result.bodyText);
+                                _this.overlay();
+                            })
+                        }
+                    }
+                })
+            },
+
+            getLocalDate: function (nS) {
+                let date = new Date(parseInt(nS));
+                let seperator1 = "-";
+                let year = date.getFullYear();
+                let month = date.getMonth() + 1;
+                let strDate = date.getDate();
+                if (month >= 1 && month <= 9) {
+                    month = "0" + month;
+                }
+                if (strDate >= 0 && strDate <= 9) {
+                    strDate = "0" + strDate;
+                }
+                return year + seperator1 + month + seperator1 + strDate;
+            },
+            overlay: function (id) {
+                this.currentId = id;
+                this.reconciliation = "0.00";
+                this.reconciliationServiceCharge = "0.00";
+                var e1 = document.getElementById('modal-overlay');
+                e1.style.visibility = (e1.style.visibility == "visible") ? "hidden" : "visible";
+            },
+            confirm_overlay: function () {
+                var e1 = document.getElementById('modal-confirm');
+                e1.style.visibility = (e1.style.visibility == "visible") ? "hidden" : "visible";
+            },
+            modal_user: function () {
+                var e1 = document.getElementById('modal-user');
+                e1.style.visibility = (e1.style.visibility == "visible") ? "hidden" : "visible";
+            },
+            reset() {
+                this.reconciliationsStatus = "none";
+                this.startDate = this.currentDate(30);
+                this.endDate = this.currentDate(1);
+                this.pageIndex = 1;
+                this.pageSize = 20;
+                this.totalRows = 0;
+                this.leaseSerialRecord = [];
+                this.init();
+            },
+            pageChange(pageIndex) {
+                this.pageIndex = pageIndex;
+                this.init();
+            },
+            pageSizeChange(pageSize) {
+                this.pageIndex = 1;
+                this.pageSize = pageSize;
+                this.init();
+            },
+            currentDate(num) {
+                let date = new Date();
+                let day = num * 24 * 60 * 60 * 1000;
+                date.setTime(new Date().getTime() - day);
+                let seperator1 = "-";
+                let year = date.getFullYear();
+                let month = date.getMonth() + 1;
+                let strDate = date.getDate();
+                if (month >= 1 && month <= 9) {
+                    month = "0" + month;
+                }
+                if (strDate >= 0 && strDate <= 9) {
+                    strDate = "0" + strDate;
+                }
+                return year + seperator1 + month + seperator1 + strDate;
+            }
+        },
+    })
+
+</script>
+
+</body>
+</html>
+

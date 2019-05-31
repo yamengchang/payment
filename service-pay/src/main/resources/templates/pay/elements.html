@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>四要素认证</title>
+    <link rel="stylesheet" type="text/css" href="/css/pay/elements.css"/>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <script src="/js/laydate.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/layer/2.3/layer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/vue-easytable/umd/js/index.js"></script>
+</head>
+<body>
+<div class="root">
+    <div class="content">
+        <div class="content-title">
+            <span class="span-title">四要素认证</span>
+        </div>
+        <div class="content-form">
+            <form id="cost" @submit.prevent="submit">
+                <div class="form-item">
+                    <label for="userName">姓名：</label>
+                    <input type="text" name="userName" id="userName" placeholder="请输入姓名">
+                </div>
+                <div class="form-item">
+                    <label for="cardPhone">手机号：</label>
+                    <input type="text" name="cardPhone" id="cardPhone" placeholder="请输入手机号">
+                </div>
+                <div class="form-item">
+                    <label for="cardNo">身份证号码：</label>
+                    <input type="text" name="cardNo" id="cardNo" placeholder="请输入身份证号">
+                </div>
+                <div class="form-item">
+                    <label for="certNo">银行卡号：</label>
+                    <input type="text" name="certNo" id="certNo" placeholder="请输入卡号">
+                </div>
+                <div class="form-item">
+                    <input type="hidden" name="instanceId" id="instanceId" value="${instanceId}">
+                    <input type="hidden" name="channelType" id="channelType" value="${channelType}">
+                </div>
+                <button class="submit">提交</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let vm = new Vue({
+        el: "#cost",
+        data: {
+        },
+        methods: {
+            submit: function () {
+                $.ajax({
+                    url: '/elements/auth',
+                    data:$("#cost").serialize(),
+                    type: 'POST',
+                    processData: false,// 告诉jQuery不要去处理发送的数据
+                    success: function (data) {
+                        alert("鉴定成功");
+                    },
+                    error: function (data,text,demo) {
+                        var result = data.responseText;
+                        var json = JSON.parse(result);
+                        alert(json.msg);
+                    }
+                })
+            }
+        }
+    })
+</script>
+
+</body>
+</html>

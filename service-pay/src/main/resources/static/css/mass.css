@@ -1,0 +1,294 @@
+* {
+	padding: 0;
+	margin: 0;
+}
+
+body {
+	font-family: ’lucida grande’, tahoma, helvetica, arial, ’bitstream vera sans’, sans-serif;
+}
+
+.wrap {
+	margin: 0 auto;
+	padding: 0 20px;
+	background-color: #f7f7f7;
+}
+
+.formArea {
+	font-size: 14px;
+	margin-bottom: 10px;
+	overflow: hidden;
+	padding: 20px 20px 0 20px;
+	background: white;
+}
+
+.formArea div {
+	width: 29%;
+	display: inline-block;
+	margin: 5px 20px;
+}
+
+section {
+	background: white;
+	padding: 0 20px;
+	margin-bottom: 20px;
+	padding-bottom: 20px;
+}
+
+.tableContainer {
+	width: 100%;
+	overflow: auto;
+	margin-top: 20px;
+}
+
+table {
+	width: 2000px;
+	border-collapse: collapse;
+	border: none;
+	text-align: left;
+	font-size: 14px;
+	color: #4A4A4E;
+	word-wrap: break-word;
+	word-break: break-all;
+	padding-left: 150px;
+}
+
+table .head {
+	background: #f0f1f5;
+	height: 50px;
+	line-height: 20px;
+	color: black;
+	font-weight: 600;
+	padding: 10px 0;
+}
+
+table tr {
+	border-bottom: 1px solid #e2e2e2;
+	position: relative
+}
+
+table tr > :first-child {
+	position: relative;
+}
+
+table tr td:nth-child(1) {
+	width: 130px;
+	position: absolute;
+	background: white;
+	z-index: 100;
+	line-height: 50px;
+}
+
+table tr:nth-child(1) td:nth-child(1) {
+	background: #f0f1f5;
+}
+
+table tr td:nth-child(2) {
+	margin-left: 150px;
+}
+
+table td {
+	width: 200px;
+	height: 50px;
+	border: none;
+	padding-left: 30px;
+	position: relative;
+}
+
+.account, table th {
+	width: 200px;
+	height: 40px;
+}
+
+.wrapTitle {
+	border-bottom: 1px solid #e2e2e2;
+	height: 53px;
+	line-height: 53px;
+	font-size: 16px;
+	background: white;
+	font-weight: bold;
+	color: #4a4a4a;
+}
+
+input[type="checkbox"] {
+	width: 15px;
+	height: 15px;
+	background-color: #fff;
+	border: 1px solid #c9c9c9;
+	border-radius: 2px;
+	outline: none;
+	margin-right: 5px;
+	position: absolute;
+	top: 16px;
+	left: 13px;
+}
+
+input[type=text] {
+	border: solid 1px #b4b4b4;
+	background: white;
+	padding-right: 14px;
+	color: #b4b4b4;
+	width: 180px;
+	height: 30px;
+	margin-right: 10px;
+	outline: none;
+}
+
+.opeation {
+	color: #0095ff;
+	padding-left: 30px;
+	text-align: left
+}
+
+.opeation span:hover, .buttonSearch:hover {
+	cursor: pointer;
+}
+
+.buttonSearch {
+	width: 60px;
+	height: 30px;
+	background: white;
+	border: 1px solid #379eff;
+	border-radius: 5px;
+	color: #379eff;
+	outline: none;
+}
+
+.save {
+	background: #379eff;
+	color: white;
+}
+
+/* 模态框样式 */
+
+#modal-overlay, #editInfomationsPersonal, #editInfomationsIndustry {
+	visibility: hidden;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translateX(-50%) translateY(-50%);
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	z-index: 1000;
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+.addAccount,
+.editInfomationsPersonal,
+.editInfomationsIndustry {
+	visibility: hidden;
+}
+
+.modal-data {
+	width: 400px;
+	height: 242px;
+	margin: 100px auto;
+	background-color: #fff;
+	padding: 15px;
+	text-align: center;
+	border-radius: 5px;
+	font-size: 14px;
+}
+
+#modal-confirm {
+	visibility: hidden;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translateX(-50%) translateY(-50%);
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	z-index: 1000;
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+.input-password {
+	border: solid 1px #b4b4b4;
+	background: white;
+	padding-right: 14px;
+	color: #b4b4b4;
+	width: 180px;
+	height: 30px;
+	margin-right: 10px;
+	outline: none;
+}
+
+.modal-title {
+	text-align: left;
+	height: 30px;
+	line-height: 20px;
+	border-bottom: 1px solid #e2e2e2;
+	overflow: hidden;
+}
+
+.modal-title .cancel {
+	float: right;
+}
+
+.modal-title .cancel:hover {
+	cursor: pointer;
+}
+
+.modal-form {
+	padding: 10px 0;
+	color: #4a4a4a;
+}
+
+.modal-form input {
+	border-color: #e2e2e2;
+	color: #4a4a4a;
+}
+
+.modal-form div {
+	margin-top: 5px;
+	overflow: hidden;
+}
+
+.modal-form div div:nth-child(1) {
+	width: 30%;
+	float: left;
+	text-align: right;
+}
+
+.modal-form div div:nth-child(2) {
+	width: 70%;
+	float: left;
+	text-align: left;
+}
+
+.modal-opeationsButton {
+	margin-top: 20px;
+}
+
+.modal-opeationsButton input {
+	float: right;
+
+}
+
+.modal-opeationsButton input:nth-child(2) {
+	margin-right: 10px;
+}
+
+/*滚动条样式*/
+
+.tableContainer::-webkit-scrollbar {
+	/*滚动条整体样式*/
+	width: 3px;
+	/*高宽分别对应横竖滚动条的尺寸*/
+	height: 3px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+	/*滚动条里面小方块*/
+	border-radius: 5px;
+	-webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+	background: #e2e2e2;
+}
+
+.tableContainer::-webkit-scrollbar-track {
+	/*滚动条里面轨道*/
+	-webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+	border-radius: 0;
+	background: white;
+}

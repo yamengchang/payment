@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title>首页</title>
+	<link rel="stylesheet" href="https://unpkg.com/vue-easytable/umd/css/index.css">
+
+	<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="http://layui.hcwl520.com.cn/layui/css/layui.css?v=201809030202">
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+	<script src="js/laydate.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/layer/2.3/layer.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.5.1"></script>
+	<!-- 引入组件库 -->
+	<script src="https://unpkg.com/vue-easytable/umd/js/index.js"></script>
+	<style>
+		a, address, b, big, blockquote, body, center, cite, code, dd, del, div, dl, dt, em, fieldset, font, form, h1, h2, h3, h4, h5, h6, html, i, iframe, img, ins, label, legend, li, ol, p, pre, small, span, strong, u, ul, var {
+			padding: 0;
+			margin: 0;
+		}
+
+		a {
+			color: black;
+			text-decoration: none;
+		}
+
+		ul {
+			list-style: none;
+		}
+
+		#tab {
+			width: 498px;
+			height: 130px;
+			border: 1px solid #ddd;
+			box-shadow: 0 0 2px #ddd;
+			margin: 100px 0 0 100px;
+			/*处理超出的内容*/
+			overflow: hidden;
+		}
+
+		/*选项卡的头部*/
+		#tab-header {
+			background-color: #F7F7F7;
+			height: 33px;
+			text-align: center;
+			position: relative;
+		}
+
+		#tab-header ul {
+			width: 100%;
+			position: absolute;
+			left: -1px;
+		}
+
+		#tab-header ul li {
+			float: left;
+			width: 98px;
+			height: 33px;
+			line-height: 33px;
+			padding: 0 1px;
+			border-bottom: 1px solid #dddddd;
+		}
+
+		#tab-header ul li.selected {
+			background-color: #6BC0E4;
+			font-weight: bolder;
+			border-bottom: 0;
+			color: #000000;
+			border-left: 1px solid #dddddd;
+			border-right: 1px solid #dddddd;
+			padding: 0;
+
+		}
+
+		#tab-header ul li:hover {
+			color: orangered;
+		}
+
+	</style>
+
+</head>
+<body>
+<div id="cost" style="margin-top: 36px;">
+
+	<div class="layui-form">
+		<fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+			<legend>账单时间</legend>
+		</fieldset>
+		<div class="layui-form-item">
+			<label class="layui-form-label">时间</label>
+			<div class="layui-input-inline">
+				<input name="title" autocomplete="off" readonly v-model="date"
+					   class="layui-input" readonly type="text">
+			</div>
+		</div>
+		<fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+			<legend>平台交易信息</legend>
+		</fieldset>
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">总金额 </label>
+				<div class="layui-input-inline">
+					<input name="date" id="date1" readonly autocomplete="off" v-model="trade.platSumTradeAccount"
+						   class="layui-input"
+						   type="text">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">总次数</label>
+				<div class="layui-input-inline">
+					<input name="number" autocomplete="off" readonly v-model="trade.platSumTradeNum"
+						   class="layui-input"
+						   type="text">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">总退款</label>
+				<div class="layui-input-inline">
+					<input name="number" autocomplete="off" readonly v-model="trade.platSumTradeRebackAccount"
+						   class="layui-input"
+						   type="text">
+				</div>
+			</div>
+		</div>
+		<fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+			<legend>代收信息</legend>
+		</fieldset>
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">代收总金额 </label>
+				<div class="layui-input-inline">
+					<input name="date" autocomplete="off" readonly v-model="trade.bankSumTradeAccount"
+						   class="layui-input"
+						   type="text">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">代收次数</label>
+				<div class="layui-input-inline">
+					<input name="number" autocomplete="off" v-model="trade.bankSumTradeNum" class="layui-input"
+						   type="text">
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">代收总退款</label>
+				<div class="layui-input-inline">
+					<input name="number" autocomplete="off" readonly v-model="trade.bankSumRefund"
+						   class="layui-input"
+						   type="text">
+				</div>
+			</div>
+		</div>
+
+		<fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+			<legend>差账</legend>
+		</fieldset>
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<label class="layui-form-label">已补差账 </label>
+				<div class="layui-input-inline">
+					<input name="date" autocomplete="off" readonly v-model="trade.reconciliation"
+						   class="layui-input"
+						   type="text">
+				</div>
+				<label class="layui-form-label">备注 </label>
+				<div class="layui-input-inline">
+					<textarea rows="4" cols="22" readonly>{{trade.remark}}  </textarea>
+				</div>
+			</div>
+			<div class="layui-inline">
+				<label class="layui-form-label">总差账 </label>
+				<div class="layui-input-inline">
+					<input name="date" autocomplete="off" readonly
+						   v-model="reconciliation"
+						   class="layui-input"
+						   type="text">
+				</div>
+				<div class="layui-inline">
+					<button @click="add(reconciliation)"
+							class="layui-btn">添加平账
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="layui-form" style="margin-top: 30px">
+		<div class="layui-form-item">
+			<div class="layui-inline">
+				<button @click="clearMoney" class="layui-btn">批量清分</button>
+			</div>
+			<v-table
+					:width="tableWidth"
+					column-width-drag
+					:columns="columns"
+					:table-data="leaseSerialRecord"
+					row-hover-color="#eee"
+					row-click-color="#edf7ff"
+					:select-all="selectALL"
+					:select-change="selectChange"
+			>
+			</v-table>
+
+			<div class="mt20 mb20 bold" style="height: 30px"></div>
+			<v-pagination @page-change="pageChange" @page-size-change="pageSizeChange" :total="totalRows"
+						  :page-size="pageSize"
+						  :layout="['total', 'prev', 'pager', 'next', 'sizer', 'jumper']"></v-pagination>
+		</div>
+	</div>
+</div>
+<script>
+    let pdate = '${date}';
+    let ptrade = '${trade}';
+    var vm = new Vue({
+        el: "#cost",
+        data: {
+            tableWidth: 1000,
+            pageIndex: 1,
+            pageSize: 20,
+            totalRows: 0,
+            tab: 0,
+            trade: null,
+            date: null,
+            reconciliation: null,
+            selctleaseSerialRecord: [],
+            leaseSerialRecord: [],
+            columns: [
+                {field: 'bankOrderTime', title: '下单时间', width: 100, titleAlign: 'center', columnAlign: 'center'},
+                {field: 'bankPlatformOrderNo', title: '平台订单号', width: 200, titleAlign: 'center', columnAlign: 'center'},
+                {field: 'orderNo', title: '第三方交易号', width: 200, titleAlign: 'center', columnAlign: 'center'},
+                {field: 'bankGoodsName', title: '商品名称', width: 100, titleAlign: 'center', columnAlign: 'center'},
+                {field: 'bankOrderStatus', title: '订单状态', width: 100, titleAlign: 'center', columnAlign: 'center'},
+                {field: 'bankTradeMethod', title: '交易方式', width: 100, titleAlign: 'center', columnAlign: 'center'},
+                {
+                    field: 'bankMerchantRealIncome',
+                    width: 100,
+                    title: '商家实收',
+                    titleAlign: 'center',
+                    columnAlign: 'center'
+                },
+                {field: 'bankServiceCharge', title: '手续费', width: 100, titleAlign: 'center', columnAlign: 'center'},
+                {field: 'bankRate', title: '费率', width: 100, titleAlign: 'center', columnAlign: 'center'},
+                {
+                    field: 'cleanStatus', title: '清算状态', titleAlign: 'center', columnAlign: 'center',
+                    formatter: function (rowData, rowIndex, pagingIndex, field) {
+                        if (rowData.cleanStatus === "WAIT_DOWN") {
+                            return "待拉去数据"
+                        }
+                        if (rowData.cleanStatus === "WAIT_CLEAR") {
+                            return "<span style='color:blue;'>待清分</span>"
+                        }
+                        if (rowData.cleanStatus === "HAVE_CLEAR") {
+                            return "<span style='color:green;'>已清分</span>"
+                        }
+                        if (rowData.cleanStatus === "HANG_UP") {
+                            return "<span style='color:yellow;'>已挂起</span>"
+                        }
+                        if (rowData.cleanStatus === "ERROR") {
+                            return "<span style='color:red;'>清分错误</span><span style='font-size: 9px;margin-left: 3px'>" + rowData.error + "</span>"
+                        }
+                        return
+                    }
+                }
+            ],
+        },
+        created() {
+            this.tableWidth = document.body.clientWidth;
+            this.date = pdate;
+            this.trade = JSON.parse(ptrade);
+            console.log(this.trade);
+            this.init()
+        }
+        ,
+        methods: {
+            refeshTrade() {
+                this.$http.get('trade', {
+                    params: {
+                        'date': this.date
+                    }
+                }).then(result => {
+                    this.trade = result.body;
+                    this.reconciliation = parseInt(this.trade.bankSumTradeAccount) - parseInt(this.trade.platSumTradeAccount) - parseInt(this.trade.reconciliation)
+                })
+            },
+            init() {
+                this.leaseSerialRecord = [];
+                this.reconciliation = parseInt(this.trade.bankSumTradeAccount) - parseInt(this.trade.platSumTradeAccount) - parseInt(this.trade.reconciliation)
+                this.$http.get('page', {
+                    params: {
+                        'pageNo': this.pageIndex,
+                        'pageSize': this.pageSize,
+                        'date': this.date,
+                        'type': "notcibpay_single"
+                    }
+                }).then(result => {
+                    let leaseSerial = result.body.data;
+                    console.log(result.body.data);
+                    for (let le of leaseSerial) {
+                        if (le.cleanStatus === "HAVE_CLEAR") {
+                            le._disabled = true;
+                        }
+                        this.leaseSerialRecord.push(le);
+                    }
+                    this.totalRows = result.body.total;
+                })
+            },
+            // 数据筛选
+            filterMethod(filters) {
+                let tableData = this.init();
+                // filter gender
+                if (Array.isArray(filters.gender)) {
+                    tableData = tableData.filter(item => item.gender === filters.gender[0])
+                }
+                if (Array.isArray(filters.name)) {
+                    tableData = tableData.filter(item => filters.name.indexOf(item.name) > -1);
+                }
+                this.leaseSerialRecord = tableData;
+            },
+            pageChange(pageIndex) {
+                this.pageIndex = pageIndex;
+                this.init();
+                console.log(pageIndex)
+            },
+            pageSizeChange(pageSize) {
+                this.pageIndex = 1;
+                this.pageSize = pageSize;
+                this.init();
+            },
+            selectALL(selection) {
+                this.selctleaseSerialRecord = selection;
+            },
+
+            selectChange(selection, rowData) {
+                this.selctleaseSerialRecord = selection;
+            },
+            checkData() {
+                if (this.reconciliation === 0) {
+                    return true;
+                }
+                return false;
+            },
+            checkDate() {
+                this.date = $("#date").val();
+                this.init();
+            },
+            currentDate() {
+                let date = new Date();
+                date.setTime(new Date().getTime() - 24 * 60 * 60 * 1000);
+
+                let seperator1 = "-";
+                let year = date.getFullYear();
+                let month = date.getMonth() + 1;
+                let strDate = date.getDate();
+                if (month >= 1 && month <= 9) {
+                    month = "0" + month;
+                }
+                if (strDate >= 0 && strDate <= 9) {
+                    strDate = "0" + strDate;
+                }
+                return year + seperator1 + month + seperator1 + strDate;
+            },
+            add: function (val) {
+                let width = document.body.clientWidth;
+                let height = document.body.clientHeight;
+                var pw = 600;
+                var ph = 280;
+                let _this = this;
+                if (_this.checkData()) {
+                    layer.msg("账单持平中，您无需添加平账信息")
+                    return;
+                }
+                layer.open({
+                    type: 1,
+                    skin: 'layui-layer-molv',
+                    title: '添加平账',
+                    area: [pw + 'px', ph + 'px'],
+                    shadeClose: true, //点击遮罩关闭
+                    btn: ['确定'],
+                    offset: 'lb',
+                    yes: function (index, layero) {
+                        if (_this.checkData()) {
+                            layer.msg("账单持平中，您无需添加平账信息");
+                            return;
+                        }
+                        _this.$http.post('reconciliation', {}, {
+                            params: {
+                                'reconciliation': $("#reconciliation").val(),
+                                'remark': $("#remark").val(),
+                                'date': _this.date
+                            }
+                        }).then(result => {
+                            console.log(result);
+                            if (result.bodyText == 1) {
+                                layer.msg("添加平账成功")
+                                _this.refeshTrade();
+                            }
+                            else {
+                                layer.msg("添加平账失败")
+                                _this.refeshTrade();
+                            }
+
+                        })
+                        console.log("sd");
+                        debugger;
+
+                        layer.close(index); //关闭弹出框
+
+                    },
+                    content:
+                    '<div style="margin-top: 30px; margin-left: 40px;">' +
+                    '<div class="layui-inline" >' +
+                    '<button  class="layui-btn">平账金额</button>\n' +
+                    '</div>\n' +
+                    '<div class="layui-input-inline">\n' +
+                    '<input class="layui-input"  id="reconciliation" placeholder="单位（元）" readonly type="number" value=' + val + '  }">' +
+                    '</div> <div style="height: 20px;"></div>' +
+                    '<div class="layui-inline" >' +
+                    '<button  class="layui-btn">备&nbsp &nbsp &nbsp &nbsp 注</button>' +
+                    '</div>\n' +
+                    '<div class="layui-input-inline">\n' +
+                    '<textarea class="layui-input"   rows="4" cols="22"  id="remark"  ></textarea></div> ' +
+
+                    '</div> '
+                })
+            },
+            sendPullData() {
+                let value = $("#pulldate").val();
+                if (value === null || value === "") {
+                    value = currentDate();
+                }
+                this.$http.get('bank/pull/' + value).then(result => {
+                    layer.msg('共拉取了' + result.bodyText + "条");
+                    console.log();
+                    this.init();
+                })
+            },
+
+            remove: function (id, tab) {
+                console.log(id);
+                this.tab = tab;
+                $("#" + id).addClass('selected').siblings().removeClass('selected');
+            },
+            clearMoney() {
+                if (!this.checkData()) {
+                    layer.msg("账单未持平");
+                    return;
+                }
+                layer.msg("批量清分数据较慢，请稍等片刻...");
+                let orderNos = [];
+                this.$http.post('clear', {}, {params: {'date': this.date}}).then(result => {
+                    console.log(result);
+                    layer.msg(result.bodyText);
+                    this.init();
+                })
+            }
+        }
+    })
+
+</script>
+</body>
+</html>
